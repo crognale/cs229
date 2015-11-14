@@ -50,7 +50,7 @@ class Muct:
 			reader = csv.DictReader(muctFile)
 			id_num = 0
 			for line in reader:
-					#We only want front camera shots
+					#We only want shots from camera A
 					if line['name'][5] == 'a':
 						cur.execute(landmarks_insert_line_query(line, id_num))
 						id_num += 1
