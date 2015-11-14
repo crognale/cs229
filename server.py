@@ -20,5 +20,6 @@ def images(path):
 
 
 if __name__ == "__main__":
-		muct.read_csv('muct-master/muct-landmarks/muct76.csv', 'test.db')
+		m = muct.Muct('muct-master/muct-landmarks/muct76.csv', 'test.db')
+		print 'num entries: ', m.n
 		app.run(debug=True)

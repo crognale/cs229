@@ -29,8 +29,6 @@ def landmarks_insert_line_query(line, id_num):
 	query += ")"
 	return query
 
-
-
 def create_db(db_filename):
 	#TODO handle pre-existing file instead of deleting
 	if os.path.exists(db_filename):
@@ -41,18 +39,19 @@ def create_db(db_filename):
 	cur.execute(landmarks_create_table_query())
 	return con
 
-#Returns an sqlite3 connection to a database with the data from csv_path
-def read_csv(csv_path, db_filename):
-	with open(csv_path, "rb") as muctFile:
-		con = create_db(db_filename)
-		cur = con.cursor()
+#Returns a muct object containing a database from the MUCT csv file
 
-		reader = csv.DictReader(muctFile)
-		id_num = 0
-		for line in reader:
-				cur.execute(landmarks_insert_line_query(line, id_num))
-				id_num += 1
+class Muct:
+	def __init__(self, csv_path, db_filename):
+		with open(csv_path, "rb") as muctFile:
+			self.con = create_db(db_filename)
+			cur = self.con.cursor()
 
-		con.commit()
-		return con
+			reader = csv.DictReader(muctFile)
+			id_num = 0
+			for line in reader:
+					cur.execute(landmarks_insert_line_query(line, id_num))
+					id_num += 1
+			self.n = id_num
+			self.con.commit()
 
