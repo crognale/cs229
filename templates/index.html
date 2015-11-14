@@ -1,10 +1,21 @@
 <!doctype html>
 <head>
 <title>What's your type?</title>
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+<script>
+	$(document).ready(function() {
+		$(".rating").click(function() {
+			$.post("rating", {img_name: '{{image_name}}', rating: this.id}, function(result) {
+				location.reload();
+			});
+		});
+	});
+</script>
 </head>
 <h1>What's your type?</h1>
 <p>Do you find this person attractive? Press 'yes' or 'no'.</p>
 <img src="img/{{image_name}}.jpg", style="height:400px;" />
 <p>
-<button type="button">Yes</button>
-<button type="button">No</button>
+<button type="button" class="rating" id="yes">Yes</button>
+<button type="button" class="rating" id="no">No</button>

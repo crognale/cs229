@@ -21,6 +21,19 @@ def images(path):
 	resp.content_type = "image/jpeg"
 	return resp
 
+@app.route("/rating", methods=['POST'])
+def rating():
+	global m
+	r = flask.request
+	if r.method=='POST':
+		#print r.form['img_name'], r.form['rating']
+		img_name = r.form['img_name']
+		rating = 0
+		if r.form['rating'] == 'yes':
+			rating = 1
+		m.add_rating(img_name, rating)
+	return "okay"
+
 
 if __name__ == "__main__":
 		m = muct.Muct('muct-master/muct-landmarks/muct76.csv', 'test.db')

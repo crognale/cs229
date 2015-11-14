@@ -38,6 +38,7 @@ def create_db(db_filename):
 	con = sql.connect(db_filename, check_same_thread=False)
 	cur = con.cursor()
 	cur.execute(landmarks_create_table_query())
+	cur.execute("CREATE TABLE Ratings(img_name TEXT, rating INT)")
 	return con
 
 #Returns a muct object containing a database from the MUCT csv file
@@ -63,5 +64,10 @@ class Muct:
 		cur.execute("SELECT name FROM Landmarks WHERE Id={}".format(i))
 		rows = cur.fetchall()
 		return rows[0][0]
+
+	def add_rating(self, img_name, rating):
+		cur = self.con.cursor()
+		cur.execute('INSERT INTO Ratings VALUES("'+img_name+'", {})'.format(rating))
+		self.con.commit()
 
 
