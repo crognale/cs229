@@ -5,7 +5,7 @@ import os
 
 #Generates the SQL query string to create a new Landmarks table
 def landmarks_create_table_query():
-	query = "CREATE TABLE Landmarks(name TEXT, tag TEXT, "
+	query = "CREATE TABLE Landmarks(Id INT, name TEXT, tag TEXT, "
 	for i in range(0, 76):
 		query += 'x{:02d} REAL, '.format(i)
 		query += 'y{:02d} REAL'.format(i)
@@ -15,8 +15,9 @@ def landmarks_create_table_query():
 	return query
 
 #Generates the SQL query string to add a CSV line to the Landmarks table
-def landmarks_insert_line_query(line):
+def landmarks_insert_line_query(line, id_num):
 	query = "INSERT INTO Landmarks VALUES("
+	query += "{}".format(id_num) + ", "
 	query += '"'+line['name'] + '", '
 	query += '"'+line['tag'] + '", '
 
@@ -47,7 +48,11 @@ def read_csv(csv_path, db_filename):
 		cur = con.cursor()
 
 		reader = csv.DictReader(muctFile)
+		id_num = 0
 		for line in reader:
-				cur.execute(landmarks_insert_line_query(line))
+				cur.execute(landmarks_insert_line_query(line, id_num))
+				id_num += 1
+
 		con.commit()
+		return con
 
