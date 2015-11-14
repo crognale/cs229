@@ -1,6 +1,7 @@
 import flask
 from flask import render_template
 import os
+import muct
 
 app = flask.Flask(__name__)
 
@@ -12,14 +13,12 @@ def index():
 
 @app.route("/img/<path>")
 def images(path):
-	print 'images(path), path=', path
 	fullpath = here + "/muct-master/jpg/" + path
-	print fullpath
-	print open(fullpath).read()
 	resp = flask.make_response(open(fullpath).read())
 	resp.content_type = "image/jpeg"
 	return resp
 
 
 if __name__ == "__main__":
+		muct.read_csv('muct-master/muct-landmarks/muct76.csv', 'test.db')
 		app.run(debug=True)
