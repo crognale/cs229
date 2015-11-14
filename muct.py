@@ -2,6 +2,7 @@ import csv
 import sqlite3 as sql
 import sys
 import os
+import random
 
 #Generates the SQL query string to create a new Landmarks table
 def landmarks_create_table_query():
@@ -34,13 +35,12 @@ def create_db(db_filename):
 	if os.path.exists(db_filename):
 		os.remove(db_filename)
 
-	con = sql.connect(db_filename)
+	con = sql.connect(db_filename, check_same_thread=False)
 	cur = con.cursor()
 	cur.execute(landmarks_create_table_query())
 	return con
 
 #Returns a muct object containing a database from the MUCT csv file
-
 class Muct:
 	def __init__(self, csv_path, db_filename):
 		with open(csv_path, "rb") as muctFile:
@@ -50,8 +50,18 @@ class Muct:
 			reader = csv.DictReader(muctFile)
 			id_num = 0
 			for line in reader:
-					cur.execute(landmarks_insert_line_query(line, id_num))
-					id_num += 1
+					#We only want front camera shots
+					if line['name'][5] == 'a':
+						cur.execute(landmarks_insert_line_query(line, id_num))
+						id_num += 1
 			self.n = id_num
 			self.con.commit()
+
+	def rand_img_name(self):
+		i = random.randint(0, self.n-1)
+		cur = self.con.cursor()
+		cur.execute("SELECT name FROM Landmarks WHERE Id={}".format(i))
+		rows = cur.fetchall()
+		return rows[0][0]
+
 

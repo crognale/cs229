@@ -7,9 +7,12 @@ app = flask.Flask(__name__)
 
 here = os.getcwd()
 
+m = None
+
 @app.route("/")
 def index():
-	return render_template('index.html');
+	global m
+	return render_template('index.html', image_name=m.rand_img_name())
 
 @app.route("/img/<path>")
 def images(path):
@@ -21,5 +24,4 @@ def images(path):
 
 if __name__ == "__main__":
 		m = muct.Muct('muct-master/muct-landmarks/muct76.csv', 'test.db')
-		print 'num entries: ', m.n
 		app.run(debug=True)
