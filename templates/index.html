@@ -2,20 +2,32 @@
 <head>
 <title>What's your type?</title>
 <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<link href={{url_for('static', filename='stylesheet.css')}} rel="stylesheet"  type="text/css">
 
 <script>
 	$(document).ready(function() {
 		$(".rating").click(function() {
-			$.post("rating", {img_name: '{{image_name}}', rating: this.id}, function(result) {
+			username = $('#username').val();
+			$.post("rating", {'img_name': '{{image_name}}', 'rating': this.id, 'username': username}, function(result) {
 				location.reload();
 			});
 		});
 	});
+
+	window.onbeforeunload = function() {
+		localStorage.setItem('username', $('#username').val());
+	}
+
+	window.onload = function() {
+		var username = localStorage.getItem('username');
+		if (username !== null) $('#username').val(username);
+	}
 </script>
 </head>
 <h1>What's your type?</h1>
 <p>Do you find this person attractive? Press 'yes' or 'no'.</p>
-<img src="img/{{image_name}}.jpg", style="height:400px;" />
+<img src="img/{{image_name}}.jpg", />
 <p>
+Username: <input type="text" id="username"/><p>
 <button type="button" class="rating" id="yes">Yes</button>
 <button type="button" class="rating" id="no">No</button>

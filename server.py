@@ -31,7 +31,10 @@ def rating():
 		rating = 0
 		if r.form['rating'] == 'yes':
 			rating = 1
-		m.add_rating(img_name, rating)
+
+		username = r.form['username']
+		if username:
+			m.add_rating(username, img_name, rating)
 	return "okay"
 
 

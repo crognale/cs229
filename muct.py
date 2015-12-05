@@ -30,24 +30,28 @@ def landmarks_insert_line_query(line, id_num):
 	query += ")"
 	return query
 
-def create_db(db_filename):
-	#TODO handle pre-existing file instead of deleting
-	if os.path.exists(db_filename):
-		os.remove(db_filename)
-
-	con = sql.connect(db_filename, check_same_thread=False)
-	cur = con.cursor()
-	cur.execute(landmarks_create_table_query())
-	cur.execute("CREATE TABLE Ratings(img_name TEXT, rating INT)")
-	return con
 
 #Returns a muct object containing a database from the MUCT csv file
 class Muct:
 	def __init__(self, csv_path, db_filename):
-		with open(csv_path, "rb") as muctFile:
-			self.con = create_db(db_filename)
-			cur = self.con.cursor()
+		if os.path.exists(db_filename):
+			self.con = sql.connect(db_filename, check_same_thread=False)
 
+			cur = self.con.cursor()
+			cur.execute("SELECT COUNT(*) From Landmarks")
+			rows = cur.fetchall()
+			self.n = rows[0][0] + 1
+			print self.n
+		else:
+			self.create_db(db_filename, csv_path)
+
+	def create_db(self, db_filename, csv_path):
+		self.con = sql.connect(db_filename, check_same_thread=False)
+		cur = self.con.cursor()
+		cur.execute(landmarks_create_table_query())
+		cur.execute("CREATE TABLE Ratings(username TEXT, img_name TEXT, rating INT)")
+
+		with open(csv_path, "rb") as muctFile:
 			reader = csv.DictReader(muctFile)
 			id_num = 0
 			for line in reader:
@@ -65,9 +69,9 @@ class Muct:
 		rows = cur.fetchall()
 		return rows[0][0]
 
-	def add_rating(self, img_name, rating):
+	def add_rating(self, username, img_name, rating):
 		cur = self.con.cursor()
-		cur.execute('INSERT INTO Ratings VALUES("'+img_name+'", {})'.format(rating))
+		cur.execute('INSERT INTO Ratings VALUES("'+username + '","'+img_name+'", {})'.format(rating))
 		self.con.commit()
 
 
