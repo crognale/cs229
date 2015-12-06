@@ -1,0 +1,4 @@
+*.pyc
+10kfaces/
+test.db
+muct-master/
