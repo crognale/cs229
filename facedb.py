@@ -3,7 +3,9 @@ import sqlite3 as sql
 import sys
 import os
 import random
+from os.path import isfile, join
 
+'''
 #Generates the SQL query string to create a new Landmarks table
 def landmarks_create_table_query():
 	query = "CREATE TABLE Landmarks(Id INT, name TEXT, tag TEXT, "
@@ -29,28 +31,38 @@ def landmarks_insert_line_query(line, id_num):
 			query += ", "
 	query += ")"
 	return query
+'''
 
 
-#Returns a muct object containing a database from the MUCT csv file
-class Muct:
-	def __init__(self, csv_path, db_filename):
+#Returns a facedb object containing a database from the specified collection of images
+class FaceDB:
+	def __init__(self, img_dir_path, db_filename):
 		if os.path.exists(db_filename):
 			self.con = sql.connect(db_filename, check_same_thread=False)
 
 			cur = self.con.cursor()
-			cur.execute("SELECT COUNT(*) From Landmarks")
+			cur.execute("SELECT COUNT(*) From Images")
 			rows = cur.fetchall()
 			self.n = rows[0][0] + 1
-			print self.n
 		else:
-			self.create_db(db_filename, csv_path)
+			self.create_db(db_filename, img_dir_path)
 
-	def create_db(self, db_filename, csv_path):
+	def create_db(self, db_filename, img_dir_path):
 		self.con = sql.connect(db_filename, check_same_thread=False)
 		cur = self.con.cursor()
-		cur.execute(landmarks_create_table_query())
+		cur.execute("CREATE TABLE Images(Id INT, name TEXT)")
 		cur.execute("CREATE TABLE Ratings(username TEXT, img_name TEXT, rating INT)")
 
+		id_num = 0
+		for f in os.listdir(img_dir_path):
+			if isfile(join(img_dir_path, f)):
+				cur.execute('INSERT INTO Images VALUES({}'.format(id_num) + 
+						',"' + f + '")')
+				id_num += 1
+		self.n = id_num
+		self.con.commit()
+
+		'''
 		with open(csv_path, "rb") as muctFile:
 			reader = csv.DictReader(muctFile)
 			id_num = 0
@@ -61,11 +73,12 @@ class Muct:
 						id_num += 1
 			self.n = id_num
 			self.con.commit()
+		'''
 
 	def rand_img_name(self):
 		i = random.randint(0, self.n-1)
 		cur = self.con.cursor()
-		cur.execute("SELECT name FROM Landmarks WHERE Id={}".format(i))
+		cur.execute("SELECT name FROM Images WHERE Id={}".format(i))
 		rows = cur.fetchall()
 		return rows[0][0]
 
