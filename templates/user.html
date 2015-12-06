@@ -1,0 +1,11 @@
+<!doctype html>
+<head>
+	<title>{{username}}</title>
+<link href={{url_for('static', filename='stylesheet.css')}} rel="stylesheet"  type="text/css">
+
+</head>
+<h1>{{username}}'s preferences</h1>
+{% for img_name in img_list %}
+<img  src="/img/{{img_name}}" style="float: left" />
+{% endfor %}
+<p>

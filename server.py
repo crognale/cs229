@@ -14,6 +14,12 @@ def index():
 	global db 
 	return render_template('index.html', image_name=db.rand_img_name())
 
+@app.route("/user/<username>")
+def user(username):
+	return render_template('user.html', username=username, img_list = db.faces_for_user(username))
+
+
+
 @app.route("/img/<path>")
 def images(path):
 	fullpath = here + "/10kfaces/" + path
@@ -40,4 +46,4 @@ def rating():
 
 if __name__ == "__main__":
 		db = facedb.FaceDB('10kfaces/', 'test.db')
-		app.run(debug=True)
+		app.run(host='0.0.0.0', debug=True)

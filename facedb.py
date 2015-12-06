@@ -41,6 +41,17 @@ class FaceDB:
 		rows = cur.fetchall()
 		return rows[0][0]
 
+	#Returns the faces that a user rated as attractive
+	def faces_for_user(self, username):
+		cur = self.con.cursor()
+		cur.execute('SELECT img_name FROM Ratings where username="' + username
+				+ '" and rating=1')
+		rows = cur.fetchall()
+		strings = []
+		for s in rows:
+			strings.append(s[0])
+		return strings;
+
 	def add_rating(self, username, img_name, rating):
 		cur = self.con.cursor()
 		if self.rating_exists(username, img_name):
