@@ -5,35 +5,6 @@ import os
 import random
 from os.path import isfile, join
 
-'''
-#Generates the SQL query string to create a new Landmarks table
-def landmarks_create_table_query():
-	query = "CREATE TABLE Landmarks(Id INT, name TEXT, tag TEXT, "
-	for i in range(0, 76):
-		query += 'x{:02d} REAL, '.format(i)
-		query += 'y{:02d} REAL'.format(i)
-		if i < 75:
-			query += ", "
-	query += ")"
-	return query
-
-#Generates the SQL query string to add a CSV line to the Landmarks table
-def landmarks_insert_line_query(line, id_num):
-	query = "INSERT INTO Landmarks VALUES("
-	query += "{}".format(id_num) + ", "
-	query += '"'+line['name'] + '", '
-	query += '"'+line['tag'] + '", '
-
-	for i in range (0, 76):
-		query += line['x{:02d}'.format(i)] + ", "
-		query += line['y{:02d}'.format(i)]
-		if i < 75:
-			query += ", "
-	query += ")"
-	return query
-'''
-
-
 #Returns a facedb object containing a database from the specified collection of images
 class FaceDB:
 	def __init__(self, img_dir_path, db_filename):
@@ -43,7 +14,7 @@ class FaceDB:
 			cur = self.con.cursor()
 			cur.execute("SELECT COUNT(*) From Images")
 			rows = cur.fetchall()
-			self.n = rows[0][0] + 1
+			self.n = rows[0][0]
 		else:
 			self.create_db(db_filename, img_dir_path)
 
@@ -55,25 +26,13 @@ class FaceDB:
 
 		id_num = 0
 		for f in os.listdir(img_dir_path):
-			if isfile(join(img_dir_path, f)):
+			if isfile(join(img_dir_path, f)) and f.endswith('.jpg'):
 				cur.execute('INSERT INTO Images VALUES({}'.format(id_num) + 
 						',"' + f + '")')
 				id_num += 1
 		self.n = id_num
+		print 'n: ',self.n
 		self.con.commit()
-
-		'''
-		with open(csv_path, "rb") as muctFile:
-			reader = csv.DictReader(muctFile)
-			id_num = 0
-			for line in reader:
-					#We only want shots from camera A
-					if line['name'][5] == 'a':
-						cur.execute(landmarks_insert_line_query(line, id_num))
-						id_num += 1
-			self.n = id_num
-			self.con.commit()
-		'''
 
 	def rand_img_name(self):
 		i = random.randint(0, self.n-1)
@@ -84,7 +43,17 @@ class FaceDB:
 
 	def add_rating(self, username, img_name, rating):
 		cur = self.con.cursor()
-		cur.execute('INSERT INTO Ratings VALUES("'+username + '","'+img_name+'", {})'.format(rating))
+		if self.rating_exists(username, img_name):
+			cur.execute('UPDATE Ratings SET rating={} '.format(rating) + 
+					'WHERE username="'+username+'" AND img_name = "' + img_name + '"')
+		else:
+			cur.execute('INSERT INTO Ratings VALUES("'+username + '","'+img_name+'", {})'.format(rating))
 		self.con.commit()
-
+	
+	def rating_exists(self, username, img_name):
+		cur = self.con.cursor()
+		cur.execute('SELECT COUNT(*) FROM Ratings WHERE username="'+username + '" AND img_name = "' + img_name + '"')
+		rows = cur.fetchall()
+		count = rows[0][0]
+		return count > 0
 
