@@ -16,7 +16,7 @@ def index():
 
 @app.route("/user/<username>")
 def user(username):
-	return render_template('user.html', username=username, img_list = db.faces_for_user(username))
+	return render_template('user.html', username=username, img_list = db.pos_faces_for_user(username))
 
 
 

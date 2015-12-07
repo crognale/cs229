@@ -42,7 +42,7 @@ class FaceDB:
 		return rows[0][0]
 
 	#Returns the faces that a user rated as attractive
-	def faces_for_user(self, username):
+	def pos_faces_for_user(self, username):
 		cur = self.con.cursor()
 		cur.execute('SELECT img_name FROM Ratings where username="' + username
 				+ '" and rating=1')
