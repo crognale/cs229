@@ -28,6 +28,10 @@ def open_preprocess(f):
 
 h = 256
 max_w = 256
+
+# Class for generating eigenfaces and obtaining singular values for test images.
+# Generates eigenfaces using the first n images of the given database. Test images
+# can then be decomposed with weights_for_img(). 
 class Eigen:
 	def __init__(self, img_dir_path,n=1000, forceRefresh=False):
 		if isfile('U.npy') and isfile('S.npy') and isfile('V.npy') and not forceRefresh:
@@ -68,6 +72,7 @@ class Eigen:
 			'''
 
 
+		'''
 		print 'reconstructing test image'
 		ks = [10, 20, 50, 100, 200, 400, 600]
 		test_X = open_preprocess('testimg.jpg') - self.mu
@@ -76,6 +81,11 @@ class Eigen:
 		for k in ks:
 			test_recon = self.mu + np.dot(test_w[0:k], self.U[:,0:k].T)
 			scipy.misc.imsave('testrecon_{}.jpg'.format(k), test_recon.reshape(max_w, h))
-
+		'''
 		print 'done'
+
+	def weights_for_img(self, path):
+		X = open_preprocess(path) - self.mu
+		return np.dot(X, self.U)
+
 
