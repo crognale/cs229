@@ -14,6 +14,8 @@ def open_preprocess(f):
 	img = scipy.misc.imread(f, True)
 	if img.shape[0] is not h:
 		img = scipy.misc.imresize(img, float(h) / img.shape[0]);
+	if img.shape[1] > max_w:
+		img = scipy.misc.imresize(img, (h, max_w))
 	w = img.shape[1]
 
 	padding = max_w - w
@@ -84,8 +86,12 @@ class Eigen:
 		'''
 		print 'done'
 
-	def weights_for_img(self, path):
+	def weights_for_img(self, path, ignoreFirst, k):
 		X = open_preprocess(path) - self.mu
-		return np.dot(X, self.U)
+		return np.dot(X, self.U[:,ignoreFirst:ignoreFirst+k]).T
+
+	def weights_for_imgs(self, paths, ignoreFirst, k):
+		X = [open_preprocess(path) - self.mu for path in paths]
+		return np.dot(X, self.U[:,ignoreFirst:ignoreFirst+k]).T
 
 

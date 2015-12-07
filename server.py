@@ -45,5 +45,5 @@ def rating():
 
 
 if __name__ == "__main__":
-		db = facedb.FaceDB('10kfaces/', 'test.db')
+		db = facedb.FaceDB('10kfaces/', 'server.db')
 		app.run(port=80, host='0.0.0.0', debug=True)
