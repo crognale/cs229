@@ -52,6 +52,18 @@ class FaceDB:
 			strings.append(s[0])
 		return strings;
 
+	#returns a list of (filename, rating) tuples
+	def ratings_for_user(self, username):
+		cur = self.con.cursor()
+		cur.execute('SELECT * FROM Ratings WHERE username="' + username
+				+ '"')
+		rows = cur.fetchall()
+		result = []
+		for row in rows:
+			result.append((str(row[1]), row[2]))
+		return result
+
+
 	def add_rating(self, username, img_name, rating):
 		cur = self.con.cursor()
 		if self.rating_exists(username, img_name):
