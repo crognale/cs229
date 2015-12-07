@@ -2,3 +2,7 @@
 10kfaces/
 test.db
 muct-master/
+*.npy
+*.jpg
+*.swp
+*.db
