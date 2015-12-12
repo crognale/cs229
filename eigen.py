@@ -42,6 +42,8 @@ class Eigen:
 			self.S = np.load('S.npy')
 			self.V = np.load('V.npy')
 			self.mu = np.load('mu.npy')
+			#TODO MAKE WEIGHTS DICTIONARY
+			#self.weights = np.load('weights.npy')
 		else:
 			files = os.listdir(img_dir_path)
 
@@ -49,7 +51,7 @@ class Eigen:
 			cur_n = 0
 			print 'reading images'
 			for f in files[0:n]:
-				target_file = basedir + str(f)
+				target_file = img_dir_path + str(f)
 				arr[cur_n] = open_preprocess(target_file)
 				cur_n += 1
 
@@ -58,23 +60,24 @@ class Eigen:
 
 			print 'doing svd'
 			self.U, self.S, self.V = np.linalg.svd(X.transpose(), full_matrices=False)
+			self.weights = np.dot(X, self.U)
 
 			print 'saving eigenfaces'
 			np.save('U.npy',self.U)
 			np.save('S.npy',self.S)
 			np.save('V.npy',self.V)
 			np.save('mu.npy', self.mu)
+			#np.save('weights.npy', self.weights)
 
-			'''
-			weights = np.dot(X, self.U)
+
 			for i in xrange(n):
 				scipy.misc.imsave('efaces/{}.png'.format(i), self.U[:,i].reshape(max_w, h))
-				recon = self.mu + np.dot(weights[i, :], self.U.T)
+				recon = self.mu + np.dot(self.weights[i, :], self.U.T)
 				scipy.misc.imsave('efaces/recon{}.png'.format(i), recon.reshape(max_w, h))
-			'''
+			print 'done'
 
+	'''
 
-		'''
 		print 'reconstructing test image'
 		ks = [10, 20, 50, 100, 200, 400, 600]
 		test_X = open_preprocess('testimg.jpg') - self.mu
@@ -83,15 +86,16 @@ class Eigen:
 		for k in ks:
 			test_recon = self.mu + np.dot(test_w[0:k], self.U[:,0:k].T)
 			scipy.misc.imsave('testrecon_{}.jpg'.format(k), test_recon.reshape(max_w, h))
+
 		'''
-		print 'done'
 
 	def weights_for_img(self, path, ignoreFirst, k):
 		X = open_preprocess(path) - self.mu
-		return np.dot(X, self.U[:,ignoreFirst:ignoreFirst+k]).T
+		return np.dot(X, self.U)[:,ignoreFirst:ignoreFirst+k].T
 
 	def weights_for_imgs(self, paths, ignoreFirst, k):
 		X = [open_preprocess(path) - self.mu for path in paths]
-		return np.dot(X, self.U[:,ignoreFirst:ignoreFirst+k]).T
+		#return np.dot(X, self.U[:,ignoreFirst:ignoreFirst+k]).T
+		return np.dot(X, self.U)[:,ignoreFirst:ignoreFirst+k].T
 
 

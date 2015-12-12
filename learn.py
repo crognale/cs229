@@ -38,15 +38,15 @@ eig = eigen.Eigen(facedir, 1000, False)
 
 X = []
 
-k = 3000 # number of ratings to choose, low number for fast testing
-ratings = fdb.ratings_for_user('sam')[0:k]
+k = 2000 # number of ratings to choose, low number for fast testing
+ratings = fdb.ratings_for_user('mattosan')[0:k]
 
 paths = []
 for r in ratings:
 	paths.append(facedir + r[0])
 
-ignoreFirst = 10 #ignore the first x eigenfaces
-weight_k = 50 #use this many eigenfaces total
+ignoreFirst = 5 #ignore the first x eigenfaces
+weight_k = 400 #use this many eigenfaces total
 weights = eig.weights_for_imgs(paths, ignoreFirst, weight_k)
 
 for i in xrange(len(ratings)):
@@ -54,7 +54,7 @@ for i in xrange(len(ratings)):
 	X.append((ratings[i][0], ratings[i][1], weights[:,i]))
 
 #split X into training set (X) and testing set(Y)
-split_ind = 1000
+split_ind = 2000
 Y = X[split_ind:]
 Y_weights = weights[:, split_ind:]
 
@@ -70,10 +70,11 @@ for test_i in range(len(Y)):
 	#look only at positive test examples for now
 	if Y[test_i][1] == 1:
 		#find k-nearest neighbors using euclidian and mahalanobis
-		i_eucs = closest_euclidean(test_w, X_weights, 5)
-		i_mahs = closest_mahalanobis(test_w, X_weights, cov, 5)
+		i_eucs = closest_euclidean(test_w, X_weights, 1)
+		i_mahs = closest_mahalanobis(test_w, X_weights, cov, 1)
 		#print out k-nearest neighbor ratings of the test example
-		print Y[test_i][1], '==>', [X[i_mah][1] for i_mah in i_mahs]
+		print Y[test_i][0:2], '==>', [X[i_mah][0:2] for i_mah in i_mahs]
+		print Y[test_i][0:2], '==>', [X[i_euc][0:2] for i_euc in i_eucs]
 
 #create average attractive face
 avg_w = np.zeros((eig.U.shape[1], 1))
@@ -85,3 +86,5 @@ for i in range(len(X)):
 avg_w /= pos_count
 recon = eig.mu.reshape(-1,1) + np.dot(eig.U, avg_w)
 scipy.misc.imsave('pos_recon.jpg', recon.reshape(256, 256))
+recon_unmu  = recon - eig.mu.reshape(-1, 1)
+scipy.misc.imsave('pos_recon_unmu.jpg', recon_unmu.reshape(256, 256))
